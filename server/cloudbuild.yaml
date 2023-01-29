@@ -5,9 +5,9 @@ steps:
     name: "gcr.io/cloud-builders/docker"
     args: [
       "build",
-      "--tag=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:${SHORT_SHA}",
-      "--tag=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:latest",
-      "--cache-from=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:latest",
+      "--tag=${_IMAGE_NAME}:$SHORT_SHA",
+      "--tag=${_IMAGE_NAME}:latest",
+      "--cache-from=${_IMAGE_NAME}:latest",
       "."
     ]
     dir: "server"
@@ -17,7 +17,8 @@ steps:
     name: "gcr.io/cloud-builders/docker"
     args: [
       "push",
-      "${_ARTIFACT_REPOSITORY_IMAGE_NAME}"
+      "--all-tags",
+      "${_IMAGE_NAME}"
     ]
     dir: "server"
     waitFor: ["build-backend-container-image"]
@@ -31,9 +32,9 @@ steps:
         "deploy",
         "node-express-api", # Cloud Run のサービス名
         "--image",
-        "${_ARTIFACT_REPOSITORY_IMAGE_NAME}",
+        "${_IMAGE_NAME}",
         "--region",
-        "us-central1",
+        "${_LOCATION}",
         "--platform",
         "managed",
         "--allow-unauthenticated",
@@ -43,10 +44,10 @@ steps:
 
 # ユーザー定義変数
 substitutions:
-  _SERVICE_NAME: "mean-stack-example"
   _LOCATION: "us-central1"
+  _REPOSITORY: "backend" # Artifact Registry のリポジトリ名
   _BASE_NAME: "node-express-api"
-  _ARTIFACT_REPOSITORY_IMAGE_NAME: "${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${TRIGGER_NAME}/${_SERVICE_NAME}/${_BASE_NAME}"
+  _IMAGE_NAME: "${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_BASE_NAME}"
 
 images:
-  - "$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA"
+  - "$_IMAGE_NAME:$SHORT_SHA"
