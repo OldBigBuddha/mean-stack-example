@@ -24,7 +24,8 @@ steps:
     waitFor: ["build-backend-container-image"]
 
   # Deploy to Cloud Run
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+  - id: "deploy-backend-to-cloud-run"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
     entrypoint: gcloud
     args:
       [
