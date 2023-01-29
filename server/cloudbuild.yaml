@@ -1,0 +1,47 @@
+# ./server の Dockerfile から生成したイメージを Artifact Registry に push する
+steps:
+  # Docker Build
+  - id: "build-backend-container-image"
+    name: "gcr.io/cloud-builders/docker"
+    args: [
+      "build",
+      "--tag=$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA",
+      "--tag=$_ARTIFACT_REPOSITORY_IMAGE_NAME:latest",
+      "--cache-from=$_ARTIFACT_REPOSITORY_IMAGE_NAME:latest",
+      "."
+    ]
+    dir: "mean-stack-example/server"
+  # Docker push to Artifact Registry
+  - id: "push-backend-container-image"
+    name: "gcr.io/cloud-builders/docker"
+    args: [
+      "push",
+      "--all-tags",
+      "$_ARTIFACT_REPOSITORY_IMAGE_NAME"
+    ]
+    dir: "mean-stack-example/server"
+    waitFor: ["build-backend-container-image"]
+  # Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    entrypoint: gcloud
+    args:
+      [
+        "run",
+        "deploy",
+        "node-express-api", # Cloud Run のサービス名
+        "--image",
+        "${_ARTIFACT_REPOSITORY_IMAGE_NAME}",
+        "--region",
+        "us-central1",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
+
+# ユーザー定義変数
+substitutions:
+  _SERVICE_NAME: "mean-stack-example"
+  _ARTIFACT_REPOSITORY_IMAGE_NAME: "us-central1-docker.pkg.dev/${PROJECT_ID}/${TRIGGER_NAME}/${_BASE_NAME}:${SHORT_SHA}"
+
+images:
+  - "$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA"
