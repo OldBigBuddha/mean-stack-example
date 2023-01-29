@@ -5,9 +5,9 @@ steps:
     name: "gcr.io/cloud-builders/docker"
     args: [
       "build",
-      "--tag=$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA",
-      "--tag=$_ARTIFACT_REPOSITORY_IMAGE_NAME:latest",
-      "--cache-from=$_ARTIFACT_REPOSITORY_IMAGE_NAME:latest",
+      "--tag=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:${SHORT_SHA}",
+      "--tag=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:latest",
+      "--cache-from=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:latest",
       "."
     ]
     dir: "mean-stack-example/server"
@@ -17,7 +17,7 @@ steps:
     args: [
       "push",
       "--all-tags",
-      "$_ARTIFACT_REPOSITORY_IMAGE_NAME"
+      "${_ARTIFACT_REPOSITORY_IMAGE_NAME}"
     ]
     dir: "mean-stack-example/server"
     waitFor: ["build-backend-container-image"]
@@ -41,7 +41,9 @@ steps:
 # ユーザー定義変数
 substitutions:
   _SERVICE_NAME: "mean-stack-example"
-  _ARTIFACT_REPOSITORY_IMAGE_NAME: "us-central1-docker.pkg.dev:${PROJECT_ID}:${TRIGGER_NAME}:${_BASE_NAME}:${SHORT_SHA}"
+  _LOCATION: "us-central1"
+  _BASE_NAME: "node-express-api"
+  _ARTIFACT_REPOSITORY_IMAGE_NAME: "${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${TRIGGER_NAME}/${_SERVICE_NAME}/${_BASE_NAME}"
 
 images:
   - "$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA"
