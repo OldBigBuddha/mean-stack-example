@@ -41,7 +41,7 @@ steps:
 # ユーザー定義変数
 substitutions:
   _SERVICE_NAME: "mean-stack-example"
-  _ARTIFACT_REPOSITORY_IMAGE_NAME: "us-central1-docker.pkg.dev/${PROJECT_ID}/${TRIGGER_NAME}/${_BASE_NAME}:${SHORT_SHA}"
+  _ARTIFACT_REPOSITORY_IMAGE_NAME: "us-central1-docker.pkg.dev:${PROJECT_ID}:${TRIGGER_NAME}:${_BASE_NAME}:${SHORT_SHA}"
 
 images:
   - "$_ARTIFACT_REPOSITORY_IMAGE_NAME:$SHORT_SHA"
