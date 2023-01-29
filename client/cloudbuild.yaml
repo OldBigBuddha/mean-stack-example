@@ -1,0 +1,54 @@
+# ./client の Dockerfile から生成したイメージを Artifact Registry に push する
+steps:
+  # Docker Build
+  - id: "build-frontend-container-image"
+    name: "gcr.io/cloud-builders/docker"
+    args: [
+      "build",
+      "--tag=${_IMAGE_NAME}:${SHORT_SHA}",
+      "--tag=${_IMAGE_NAME}:latest",
+      "--cache-from=${_IMAGE_NAME}:latest",
+      "."
+    ]
+    dir: "client"
+
+  # Docker push to Artifact Registry
+  - id: "push-frontend-container-image"
+    name: "gcr.io/cloud-builders/docker"
+    args: [
+      "push",
+      "--all-tags",
+      "${_IMAGE_NAME}"
+    ]
+    dir: "client"
+    waitFor: ["build-frontend-container-image"]
+
+  # Deploy to Cloud Run
+  - id: "deploy-frontend-to-cloud-run"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    entrypoint: gcloud
+    args:
+      [
+        "run",
+        "deploy",
+        "angular-web-app", # Cloud Run のサービス名
+        "--image",
+        "${_IMAGE_NAME}",
+        "--region",
+        "${_LOCATION}",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
+    dir: "client"
+    waitFor: ["build-frontend-container-image"]
+
+# ユーザー定義変数
+substitutions:
+  _LOCATION: "us-central1"
+  _REPOSITORY: "frontend" # Artifact Registry のリポジトリ名
+  _BASE_NAME: "angular-web-app"
+  _IMAGE_NAME: "${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_BASE_NAME}"
+
+images:
+  - "${_IMAGE_NAME}:${SHORT_SHA}"
