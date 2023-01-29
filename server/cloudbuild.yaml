@@ -10,7 +10,8 @@ steps:
       "--cache-from=${_ARTIFACT_REPOSITORY_IMAGE_NAME}:latest",
       "."
     ]
-    dir: "mean-stack-example/server"
+    dir: "server"
+
   # Docker push to Artifact Registry
   - id: "push-backend-container-image"
     name: "gcr.io/cloud-builders/docker"
@@ -19,8 +20,9 @@ steps:
       "--all-tags",
       "${_ARTIFACT_REPOSITORY_IMAGE_NAME}"
     ]
-    dir: "mean-stack-example/server"
+    dir: "server"
     waitFor: ["build-backend-container-image"]
+
   # Deploy to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
     entrypoint: gcloud
@@ -37,6 +39,8 @@ steps:
         "managed",
         "--allow-unauthenticated",
       ]
+    dir: "server"
+    waitFor: ["build-backend-container-image"]
 
 # ユーザー定義変数
 substitutions:
