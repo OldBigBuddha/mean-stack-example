@@ -17,7 +17,6 @@ steps:
     name: "gcr.io/cloud-builders/docker"
     args: [
       "push",
-      "--all-tags",
       "${_ARTIFACT_REPOSITORY_IMAGE_NAME}"
     ]
     dir: "server"
