@@ -40,7 +40,7 @@ steps:
         "--platform",
         "managed",
         "--allow-unauthenticated",
-        "--update-secrets=ATLAS_URI=$$MONGO_DB_URL:latest"
+        "--update-secrets=ATLAS_URI=${MONGO_DB_URL}:latest"
       ]
     dir: "server"
     waitFor: ["build-backend-container-image"]
