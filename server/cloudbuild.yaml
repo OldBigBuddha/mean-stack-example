@@ -27,6 +27,7 @@ steps:
   - id: "deploy-backend-to-cloud-run"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
     entrypoint: gcloud
+    secretEnv: ["MONGO_DB_URL"]
     args:
       [
         "run",
@@ -39,7 +40,7 @@ steps:
         "--platform",
         "managed",
         "--allow-unauthenticated",
-        "--update-secrets=ATLAS_URI=MONGO_DB_URL:latest"
+        "--update-secrets=ATLAS_URI=$$MONGO_DB_URL:latest"
       ]
     dir: "server"
     waitFor: ["build-backend-container-image"]
