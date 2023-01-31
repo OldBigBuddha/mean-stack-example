@@ -1,4 +1,4 @@
-variable "project-id" {
+variable "project_id" {
   type = string
   default = "mean-stack-on-serverless"
 }
@@ -7,20 +7,14 @@ provider "google" {
     project = "mean-stack-on-serverless"
 }
 
-resource "google_artifact_registry_repository" "frontend" {
-  provider = google-beta
-
-  project = var.project-id
-  location = "us-central1"
+module "artifact_registry_frontend" {
+  source = "./modules/artifact_registry"
+  project_id = var.project_id
   repository_id = "frontend"
-  format = "Docker"
 }
 
-resource "google_artifact_registry_repository" "backend" {
-  provider = google-beta
-
-  project = var.project-id
-  location = "us-central1"
+module "artifact_registry_backend" {
+  source = "./modules/artifact_registry"
+  project_id = var.project_id
   repository_id = "backend"
-  format = "Docker"
 }
