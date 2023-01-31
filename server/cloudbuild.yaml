@@ -39,7 +39,6 @@ steps:
         "--platform",
         "managed",
         "--allow-unauthenticated",
-        "--update-secrets=ATLAS_URI=$$MONGO_DB_URL:latest"
       ]
     secretEnv: ["MONGO_DB_URL"]
     dir: "server"
