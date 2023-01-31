@@ -39,6 +39,7 @@ steps:
         "--platform",
         "managed",
         "--allow-unauthenticated",
+        "--update-secrets=ATLAS_URI=MONGO_DB_URL:latest"
       ]
     dir: "server"
     waitFor: ["build-backend-container-image"]
@@ -49,6 +50,11 @@ substitutions:
   _REPOSITORY: "backend" # Artifact Registry のリポジトリ名
   _BASE_NAME: "node-express-api"
   _IMAGE_NAME: "${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_BASE_NAME}"
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/${PROJECT_ID}/secrets/MONGO_DB_URL/versions/latest
+      env: MONGO_DB_URL
 
 images:
   - "${_IMAGE_NAME}:${SHORT_SHA}"
